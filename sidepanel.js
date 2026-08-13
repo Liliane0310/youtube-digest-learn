@@ -1349,7 +1349,6 @@ async function buildObsidianTranscript(statusElement) {
 async function syncTranscriptToObsidian() {
   const button = document.getElementById("syncTranscriptObsidianBtn");
   const status = document.getElementById("transcriptSyncStatus");
-  const modeSelect = document.getElementById("obsidianTranscriptMode");
   if (!button || !status || !currentVideoId || !currentTranscript) return;
   const originalText = button.textContent;
   button.disabled = true;
@@ -1357,7 +1356,6 @@ async function syncTranscriptToObsidian() {
   status.textContent = "正在准备逐字稿…";
   try {
     const transcriptPayload = await buildObsidianTranscript(status);
-    const mode = modeSelect?.value === "clean" ? "clean" : transcriptPayload.transcriptMode || "bilingual";
     status.textContent = "正在写入 Obsidian…";
     const result = await chrome.runtime.sendMessage({
       action: "syncVideoTranscriptToObsidian",
@@ -1368,7 +1366,7 @@ async function syncTranscriptToObsidian() {
           channelName: currentChannelName,
         },
         ...transcriptPayload,
-        transcriptMode: mode,
+        transcriptMode: "clean",
       },
     });
     if (!result?.success) throw new Error(result?.error || "同步失败。");
