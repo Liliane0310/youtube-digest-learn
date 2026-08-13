@@ -123,11 +123,33 @@ var YTD_OBSIDIAN_VIDEO = (() => {
   }
 
   function renderTranscript(segments, video, mode = "bilingual") {
-    const safeMode = ["original", "zh", "bilingual"].includes(mode)
+    const safeMode = ["original", "zh", "bilingual", "clean"].includes(mode)
       ? mode
       : "bilingual";
     const normalized = normalizeTranscriptSegments(segments);
     if (!normalized.length) return "*逐字稿尚未同步。*";
+
+    // 干净模式：合并为连续段落，不带时间戳和分隔线，方便内容创作者提炼选题
+    if (safeMode === "clean") {
+      const originalText = normalized
+        .map((segment) => segment.text)
+        .filter(Boolean)
+        .join("\n\n");
+      const translationText = normalized
+        .map((segment) => segment.translation)
+        .filter(Boolean)
+        .join("\n\n");
+
+      if (!translationText) {
+        return originalText || "*逐字稿尚未同步。*";
+      }
+
+      return (
+        `**原文**\n\n${originalText}\n\n` +
+        `**中文翻译**\n\n${translationText}`
+      );
+    }
+
     return normalized
       .map((segment) => {
         const timestamp = `**[${formatTimestamp(segment.start)}](${videoUrl(video.videoId, segment.start)})**`;
