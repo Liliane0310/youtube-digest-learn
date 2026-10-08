@@ -1,0 +1,366 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>youtube-digest-learn Settings</title>
+    <link rel="stylesheet" href="options.css" />
+  </head>
+  <body>
+    <main class="settings-shell">
+      <header>
+        <div class="settings-heading-row">
+          <div class="eyebrow">youtube-digest-learn</div>
+          <div
+            class="language-switch"
+            role="group"
+            aria-label="Interface language"
+            data-i18n-aria-label="languageGroupLabel"
+          >
+            <button
+              class="language-option"
+              type="button"
+              data-language="en"
+              aria-pressed="true"
+            >
+              English
+            </button>
+            <button
+              class="language-option"
+              type="button"
+              data-language="zh-CN"
+              aria-pressed="false"
+            >
+              中文
+            </button>
+          </div>
+        </div>
+        <h1 data-i18n="heading">Bring your own API keys</h1>
+        <p class="lede" data-i18n="lede">
+          Keys stay in this Chrome profile and are sent only to Supadata and
+          the AI backend you configure. This open-source extension has no
+          developer server or analytics.
+        </p>
+      </header>
+
+      <form id="settingsForm">
+        <section class="card">
+          <h2 data-i18n="transcriptProvider">Transcript provider</h2>
+          <label for="supadataApiKey" data-i18n="supadataApiKeyLabel"
+            >Supadata API key</label
+          >
+          <div class="secret-input-wrap">
+            <input
+              id="supadataApiKey"
+              name="supadataApiKey"
+              type="password"
+              autocomplete="off"
+              spellcheck="false"
+              placeholder="Paste your Supadata key"
+            />
+            <button class="secret-toggle" type="button" data-secret-toggle="supadataApiKey" aria-controls="supadataApiKey" aria-pressed="false" data-i18n-aria-label="showSecret"></button>
+          </div>
+          <p class="help">
+            <span data-i18n="supadataHelp"
+              >Used to fetch timestamped YouTube subtitles.</span
+            >
+            <a
+              href="https://dash.supadata.ai/auth/sign-up"
+              target="_blank"
+              rel="noreferrer"
+              data-i18n="supadataLink"
+              >Create a Supadata account and key</a
+            ><span data-i18n="supadataHelpSuffix"
+              >. Supadata generates the key during onboarding.</span
+            >
+          </p>
+        </section>
+
+        <section class="card dictionary-settings-card">
+          <h2 data-i18n="dictionaryProvider">English dictionary</h2>
+          <p class="help ai-intro" data-i18n="dictionaryProviderHelp">
+            Add your own Merriam-Webster keys. They stay in this Chrome profile
+            and are sent only to Merriam-Webster when you look up a word.
+          </p>
+
+          <label for="merriamWebsterLearnersKey" data-i18n="learnersKeyLabel"
+            >Learner's Dictionary API key</label
+          >
+          <div class="secret-input-wrap">
+            <input
+              id="merriamWebsterLearnersKey"
+              name="merriamWebsterLearnersKey"
+              type="password"
+              autocomplete="off"
+              spellcheck="false"
+              placeholder="Paste your Learner's Dictionary key"
+            />
+            <button class="secret-toggle" type="button" data-secret-toggle="merriamWebsterLearnersKey" aria-controls="merriamWebsterLearnersKey" aria-pressed="false" data-i18n-aria-label="showSecret"></button>
+          </div>
+          <p class="help" data-i18n="learnersKeyHelp">
+            Primary source for learner-friendly definitions, examples, IPA,
+            and pronunciation audio.
+          </p>
+
+          <label
+            for="merriamWebsterCollegiateKey"
+            data-i18n="collegiateKeyLabel"
+            >Collegiate Dictionary API key</label
+          >
+          <div class="secret-input-wrap">
+            <input
+              id="merriamWebsterCollegiateKey"
+              name="merriamWebsterCollegiateKey"
+              type="password"
+              autocomplete="off"
+              spellcheck="false"
+              placeholder="Paste your Collegiate Dictionary key"
+            />
+            <button class="secret-toggle" type="button" data-secret-toggle="merriamWebsterCollegiateKey" aria-controls="merriamWebsterCollegiateKey" aria-pressed="false" data-i18n-aria-label="showSecret"></button>
+          </div>
+          <p class="help">
+            <span data-i18n="collegiateKeyHelp"
+              >Optional fallback for technical and less common vocabulary.</span
+            >
+            <a
+              href="https://www.dictionaryapi.com/my-keys"
+              target="_blank"
+              rel="noreferrer"
+              data-i18n="merriamWebsterKeysLink"
+              >Open Merriam-Webster My Keys</a
+            >.
+          </p>
+
+          <div class="dictionary-cache-note" data-i18n="dictionaryCacheNote">
+            Dictionary results and AI context explanations are cached locally.
+            Up to six recurring words from each video may be warmed in the
+            background to make later lookups instant.
+          </div>
+        </section>
+
+        <section class="card obsidian-settings-card">
+          <h2 data-i18n="obsidianSyncTitle">Obsidian sync</h2>
+          <p class="help ai-intro" data-i18n="obsidianSyncHelp">
+            Sync favorite words, timestamped video notes, and bilingual
+            transcripts through Obsidian's local REST API.
+          </p>
+
+          <label class="toggle-row" for="obsidianSyncEnabled">
+            <input id="obsidianSyncEnabled" type="checkbox" />
+            <span data-i18n="obsidianEnableLabel">Enable Obsidian sync</span>
+          </label>
+
+          <div class="field-grid">
+            <div>
+              <label for="obsidianApiBaseUrl" data-i18n="obsidianUrlLabel"
+                >Local REST API address</label
+              >
+              <input
+                id="obsidianApiBaseUrl"
+                type="url"
+                autocomplete="off"
+                spellcheck="false"
+                placeholder="http://127.0.0.1:27123"
+              />
+            </div>
+            <div>
+              <label
+                for="obsidianVocabularyPath"
+                data-i18n="obsidianFolderLabel"
+                >Vocabulary Markdown file</label
+              >
+              <input
+                id="obsidianVocabularyPath"
+                type="text"
+                autocomplete="off"
+                spellcheck="false"
+                placeholder="youtube-digest-learn/Vocabulary.md"
+              />
+            </div>
+            <div>
+              <label
+                for="obsidianVideoFolder"
+                data-i18n="obsidianVideoFolderLabel"
+                >Video notes folder</label
+              >
+              <input
+                id="obsidianVideoFolder"
+                type="text"
+                autocomplete="off"
+                spellcheck="false"
+                placeholder="youtube-digest-learn/Videos"
+              />
+            </div>
+          </div>
+
+          <label for="obsidianApiKey" data-i18n="obsidianApiKeyLabel"
+            >Local REST API key</label
+          >
+          <div class="secret-input-wrap">
+            <input
+              id="obsidianApiKey"
+              type="password"
+              autocomplete="off"
+              spellcheck="false"
+              placeholder="Paste your local Obsidian API key"
+            />
+            <button class="secret-toggle" type="button" data-secret-toggle="obsidianApiKey" aria-controls="obsidianApiKey" aria-pressed="false" data-i18n-aria-label="showSecret"></button>
+          </div>
+          <p class="help" data-i18n="obsidianApiKeyHelp">
+            Stored only in this Chrome profile and sent only to the loopback
+            address above.
+          </p>
+
+          <label class="toggle-row" for="obsidianAutoSync">
+            <input id="obsidianAutoSync" type="checkbox" checked />
+            <span data-i18n="obsidianAutoSyncLabel"
+              >Automatically sync saved words</span
+            >
+          </label>
+
+          <div class="obsidian-actions">
+            <button id="testObsidianBtn" type="button" data-i18n="testObsidian">
+              Test connection
+            </button>
+            <button id="syncVocabularyBtn" type="button" data-i18n="syncVocabulary">
+              Sync all favorites
+            </button>
+            <span id="obsidianStatus" role="status" aria-live="polite"></span>
+          </div>
+          <div class="privacy-note" data-i18n="obsidianManagedNoteHelp">
+            Vocabulary, video notes, and transcripts use separate managed
+            blocks. Your text outside those blocks is preserved.
+          </div>
+        </section>
+
+        <section class="card">
+          <h2 data-i18n="aiProvider">AI provider</h2>
+          <p class="help ai-intro" data-i18n="openAiCompatibleHelp">
+            Use DeepSeek by default, or connect any backend that implements
+            OpenAI-compatible Chat Completions.
+          </p>
+
+          <div class="field-grid">
+            <div>
+              <label for="provider" data-i18n="providerNameLabel"
+                >Provider name</label
+              >
+              <input
+                id="provider"
+                name="provider"
+                type="text"
+                autocomplete="off"
+                spellcheck="false"
+                placeholder="DeepSeek, OpenRouter, local model..."
+              />
+            </div>
+            <div>
+              <label for="aiModel" data-i18n="modelLabel">Model</label>
+              <input
+                id="aiModel"
+                name="aiModel"
+                type="text"
+                autocomplete="off"
+                spellcheck="false"
+                placeholder="deepseek-v4-flash"
+              />
+            </div>
+          </div>
+
+          <label for="aiBaseUrl" data-i18n="baseUrlLabel">Base URL</label>
+          <input
+            id="aiBaseUrl"
+            name="aiBaseUrl"
+            type="url"
+            autocomplete="off"
+            spellcheck="false"
+            placeholder="https://api.example.com/v1"
+          />
+          <p class="help" data-i18n="baseUrlHelp">
+            The extension appends /chat/completions. A full Chat Completions
+            endpoint is also accepted.
+          </p>
+
+          <label for="aiApiKey" data-i18n="aiApiKeyLabel">AI API key</label>
+          <div class="secret-input-wrap">
+            <input
+              id="aiApiKey"
+              name="aiApiKey"
+              type="password"
+              autocomplete="off"
+              spellcheck="false"
+              placeholder="Paste the key for this backend"
+            />
+            <button class="secret-toggle" type="button" data-secret-toggle="aiApiKey" aria-controls="aiApiKey" aria-pressed="false" data-i18n-aria-label="showSecret"></button>
+          </div>
+          <p class="help">
+            <span data-i18n="aiApiKeyHelp"
+              >Used for overviews, explanations, translation, and note
+              polishing.</span
+            >
+            <a
+              href="https://platform.deepseek.com/api_keys"
+              target="_blank"
+              rel="noreferrer"
+              data-i18n="deepseekLink"
+              >Create a DeepSeek API key</a
+            ><span data-i18n="deepseekHelpSuffix">.</span>
+          </p>
+          <div class="privacy-note" data-i18n="privacyNote">
+            The configured AI backend receives the video transcript and
+            relevant video context. Chrome will ask for access to a custom
+            backend's origin when you save.
+          </div>
+        </section>
+
+        <div class="form-actions">
+          <button class="primary" type="submit" data-i18n="saveSettings">
+            Save settings
+          </button>
+          <span id="saveStatus" role="status" aria-live="polite"></span>
+        </div>
+      </form>
+
+      <section class="card data-card">
+        <h2 data-i18n="localData">Local data</h2>
+        <p class="help" data-i18n="localDataHelp">
+          Digests, translations, and notes are stored only in this Chrome
+          profile. You can remove them at any time.
+        </p>
+        <div class="data-actions">
+          <button id="clearCacheBtn" type="button" data-i18n="clearCache">
+            Clear cached digests
+          </button>
+          <button
+            id="clearDictionaryCacheBtn"
+            type="button"
+            data-i18n="clearDictionaryCache"
+          >
+            Clear dictionary cache
+          </button>
+          <button id="clearNotesBtn" type="button" data-i18n="deleteNotes">
+            Delete all notes
+          </button>
+          <button
+            id="resetBtn"
+            class="danger"
+            type="button"
+            data-i18n="resetData"
+          >
+            Reset extension data
+          </button>
+        </div>
+        <span id="dataStatus" role="status" aria-live="polite"></span>
+      </section>
+
+      <footer data-i18n-html="footer">
+        Read <a href="PRIVACY.md" target="_blank">PRIVACY.md</a> in the
+        repository for the complete data-flow description.
+      </footer>
+    </main>
+
+    <script src="settings.js"></script>
+    <script src="vocabulary.js"></script>
+    <script src="options.js"></script>
+  </body>
+</html>
