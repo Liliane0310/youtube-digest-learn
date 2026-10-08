@@ -1,0 +1,283 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>youtube-digest-learn · 把视频变成学习资料</title>
+    <link rel="icon" type="image/png" href="icons/icon48.png" />
+    <link rel="apple-touch-icon" href="icons/icon128.png" />
+    <style>
+      /* ===== 沿用真实插件的设计变量，底色改为柔和纸米 ===== */
+      :root{
+        --bg:#f4f1ea;             /* 页面底 柔纸米，去白不晃眼 */
+        --paper:#fdfbf7;          /* 卡片/演示窗 纸白 */
+        --mist:#ece8df;           /* 悬停/分区 亚麻 */
+        --fog:#f7f4ee;            /* raised表面 */
+        --ink:#2a2620;            /* 主文字 暖炭墨 */
+        --ink-ink:#17191c;        /* 深炭黑（主按钮） */
+        --slate:#6f6a60;          /* 次级文字 暖灰 */
+        --ash:#9a9388;            /* 弱文字 */
+        --border:#e3ddd2;
+        --border-heavy:#d5ccbd;
+        --peach:#fbe1d1;          /* 粉桃 强调底 */
+        --sienna:#7a4a2a;         /* 赭石 强调文字 */
+        --r-lg:20px;
+        --r-pill:9999px;
+        --display: Georgia,"Times New Roman",ui-serif,serif;
+        --body: Inter,ui-sans-serif,system-ui,-apple-system,"Microsoft YaHei",sans-serif;
+        --mono: ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+      }
+      *{box-sizing:border-box;margin:0;padding:0}
+      html{scroll-behavior:smooth}
+      body{
+        background:var(--bg);color:var(--ink);
+        font-family:var(--body);line-height:1.75;
+        -webkit-font-smoothing:antialiased;
+      }
+      .wrap{max-width:1060px;margin:0 auto;padding:0 32px}
+
+      /* 顶栏 */
+      .topbar{position:sticky;top:0;background:rgba(244,241,234,.9);backdrop-filter:blur(8px);border-bottom:1px solid var(--border);z-index:50}
+      .topbar .wrap{display:flex;align-items:center;justify-content:space-between;height:60px}
+      .brand{display:flex;align-items:center;gap:11px;font-family:var(--display);font-size:17px;font-weight:700}
+      .brand img{width:28px;height:28px;border-radius:8px}
+      .nav a{margin-left:26px;color:var(--slate);text-decoration:none;font-size:14.5px;font-weight:500}
+      .nav a:hover{color:var(--sienna)}
+
+      /* 首屏 */
+      .hero{padding:62px 0 44px}
+      .kicker{font-size:12.5px;letter-spacing:2px;color:var(--sienna);margin-bottom:18px;font-weight:600;font-family:var(--mono)}
+      .hero h1{font-family:var(--display);font-size:44px;line-height:1.28;font-weight:700;max-width:16em;color:var(--ink)}
+      .hero h1 .hl{background:linear-gradient(transparent 60%,var(--peach) 60%);padding-right:4px}
+      .lede{margin-top:22px;max-width:36em;font-size:17.5px;color:var(--slate)}
+
+      /* ===== 演示窗：还原真实侧边栏（纸白、投影减弱） ===== */
+      .app{
+        margin-top:44px;background:var(--paper);border:1px solid var(--border-heavy);
+        border-radius:var(--r-lg);overflow:hidden;
+        box-shadow:0 18px 44px -28px rgba(50,38,16,.35);
+      }
+      .app .vinfo{padding:16px 22px 14px;border-bottom:1px solid var(--border)}
+      .app .vt{font-family:var(--display);font-size:18px;font-weight:700;line-height:1.3}
+      .app .vc{font-size:12.5px;color:var(--slate);margin-top:3px}
+      .app .tabs{display:flex;gap:4px;padding:10px 16px 0;border-bottom:1px solid var(--border)}
+      .app .tab{padding:8px 15px;border-radius:var(--r-pill) var(--r-pill) 0 0;font-size:14px;color:var(--slate);cursor:pointer;font-weight:500}
+      .app .tab.on{color:var(--ink);background:var(--mist);box-shadow:inset 0 -2px 0 0 var(--ink-ink)}
+      .app .body{padding:6px 22px 18px}
+      .seg{display:flex;gap:14px;padding:14px 8px;border-bottom:1px solid var(--border);align-items:flex-start}
+      .seg:last-child{border-bottom:none}
+      .seg .time{min-width:46px;flex-shrink:0;padding:3px 8px;border-radius:8px;background:var(--fog);color:var(--slate);font-family:var(--mono);font-size:12.5px;font-variant-numeric:tabular-nums;margin-top:2px}
+      .seg .txt{flex:1;min-width:0}
+      .seg .en{font-size:14.5px;line-height:1.55;color:var(--ink)}
+      .seg .word-pop{display:inline-block;background:var(--peach);color:var(--sienna);font-weight:700;border-radius:5px;padding:0 5px}
+      .seg .zh{margin-top:7px;padding-top:7px;border-top:1px dashed var(--border);font-size:13.5px;color:var(--slate)}
+      .seg .gloss{margin-top:6px;font-size:12px;color:var(--ash);font-family:var(--mono)}
+      .seg .gloss b{color:var(--sienna)}
+      .app .modes{display:flex;gap:6px;padding:12px 22px;border-top:1px solid var(--border);align-items:center;background:var(--fog)}
+      .mode{padding:5px 12px;border-radius:var(--r-pill);font-size:12.5px;color:var(--slate);cursor:pointer;border:0}
+      .mode.on{background:var(--paper);color:var(--ink);box-shadow:0 1px 4px rgba(0,0,0,.1);font-weight:600}
+      .app .mbar{margin-left:auto;font-size:12px;color:var(--ash);font-family:var(--mono)}
+      .app .mbar b{color:var(--sienna)}
+
+      .actions{margin-top:30px;display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+      .btn{display:inline-flex;align-items:center;gap:9px;padding:14px 24px;border-radius:14px;font-weight:600;text-decoration:none;font-size:15.5px;transition:transform .08s ease, background .15s ease, color .15s ease;border:0;cursor:pointer}
+      .btn-primary{background:var(--ink-ink);color:#f7f4ee}
+      .btn-primary:hover{background:var(--sienna);transform:translateY(-1px)}
+      .btn-ghost{background:transparent;color:var(--ink);box-shadow:inset 0 0 0 1.5px var(--border-heavy)}
+      .btn-ghost:hover{box-shadow:inset 0 0 0 1.5px var(--sienna);color:var(--sienna)}
+      .note-cap{font-size:13px;color:var(--ash);margin-top:16px}
+      .note-cap b{color:var(--slate);font-weight:600}
+
+      /* ===== 功能区块 ===== */
+      .section{padding:70px 0;border-top:1px solid var(--border)}
+      .section .kicker{font-size:12.5px;letter-spacing:2px;color:var(--sienna);margin-bottom:14px;font-weight:600;font-family:var(--mono)}
+      .section h2{font-family:var(--display);font-size:30px;line-height:1.32;font-weight:700;color:var(--ink)}
+      .section .sub{color:var(--slate);max-width:33em;margin-top:14px;font-size:16px}
+
+      .featurelist{margin-top:40px;display:grid;grid-template-columns:1fr 1fr;gap:16px}
+      .feat{background:var(--paper);border:1px solid var(--border);border-radius:16px;padding:24px 26px}
+      .feat .k{font-family:var(--mono);font-size:12px;color:var(--sienna);letter-spacing:1px;margin-bottom:12px}
+      .feat h3{font-size:18px;font-family:var(--display);font-weight:700;margin-bottom:8px}
+      .feat p{font-size:14.5px;color:var(--slate)}
+      .feat .demo{font-size:13px;color:var(--ash);border-top:1px dashed var(--border);margin-top:16px;padding-top:13px}
+      .feat .demo b{color:var(--sienna);font-weight:600}
+
+      /* Obsidian 区块 —— 改暖调，去紫化 */
+      .obs{margin-top:40px;background:#332e28;color:#eceae2;border-radius:18px;padding:30px 34px}
+      .obs .obstitle{font-family:var(--display);font-size:19px;font-weight:700;margin-bottom:16px;color:#fff}
+      .obscode{font-family:var(--mono);font-size:13px;line-height:1.75;white-space:pre-wrap;color:#d6cfc2}
+      .obscode .cm{color:#7f776b}
+      .obscode .c-hl{background:#5a4433;color:#ffd7b8;padding:0 5px;border-radius:4px}
+      .obs .obsp{color:#95907f;font-size:13px;margin-top:15px}
+
+      .control{margin-top:40px;display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+      .ctl{border-left:3px solid var(--peach);padding:6px 0 6px 18px}
+      .ctl h3{font-size:16.5px;font-weight:700;margin-bottom:6px}
+      .ctl p{font-size:14px;color:var(--slate)}
+
+      .closing{text-align:center;padding:76px 0 56px}
+      .closing h2{font-family:var(--display);font-size:32px;line-height:1.3;font-weight:700;color:var(--ink)}
+      .closing .note{font-size:14.5px;color:var(--slate);margin-top:16px;max-width:31em;margin-left:auto;margin-right:auto}
+      .closing .actions{justify-content:center;margin-top:32px}
+
+      @media(max-width:760px){
+        .hero h1{font-size:32px}
+        .featurelist,.control{grid-template-columns:1fr}
+        .app .seg{gap:10px}
+        .nav a{margin-left:15px}
+      }
+    </style>
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="wrap">
+        <div class="brand"><img src="icons/icon48.png" alt="youtube-digest-learn" /> youtube-digest-learn</div>
+        <nav class="nav">
+          <a href="#teach">怎么学习</a>
+          <a href="#data">数据自主</a>
+          <a href="#install">安装</a>
+        </nav>
+      </div>
+    </header>
+
+    <section class="hero">
+      <div class="wrap">
+        <div class="kicker">CHROME 侧边栏 · YOUTUBE 学习</div>
+        <h1>把每一个视频，<br />变成可以<mark class="hl">深入学下去</mark>的资料。</h1>
+        <p class="lede">字幕变成可读可搜索的文本，随时切换原文与中文；选中一个词就查到释义，还能收藏、记时间戳笔记，最后同步进 Obsidian。</p>
+      </div>
+      <div class="wrap">
+        <div class="app">
+          <div class="vinfo">
+            <div class="vt">How To Become Dangerously Self-Educated</div>
+            <div class="vc">Dan Martell · 18:42</div>
+          </div>
+          <div class="tabs">
+            <span class="tab on">逐字稿</span><span class="tab">概览</span><span class="tab">生词</span><span class="tab">笔记</span>
+          </div>
+          <div class="body">
+            <div class="seg">
+              <div class="time">0:12</div>
+              <div class="txt">
+                <div class="en">Today, the tools to <span class="word-pop">self-educate</span> are better than any classroom.</div>
+                <div class="zh">如今，自学的工具，比任何课堂都要强大。</div>
+                <div class="gloss"><b>self-educate</b> · 自学 · Merriam-Webster + 中文讲解</div>
+              </div>
+            </div>
+            <div class="seg">
+              <div class="time">5:28</div>
+              <div class="txt">
+                <div class="en">Studying means you're hunting to actually <span class="word-pop">implement</span>, not just tour around.</div>
+                <div class="zh">学习，意味着你在真正地实践，而不只是随便逛逛。</div>
+                <div class="gloss"><b>implement</b> · 实践 · 这个词在句中的意思</div>
+              </div>
+            </div>
+            <div class="seg">
+              <div class="time">12:44</div>
+              <div class="txt">
+                <div class="en">Momentum comes from <span class="word-pop">movement</span>, not motivation.</div>
+                <div class="zh">动力来自行动，而不是积极性。</div>
+                <div class="gloss"><b>movement</b> · 行动起来 · 已收藏进生词本</div>
+              </div>
+            </div>
+          </div>
+          <div class="modes">
+            <span class="mode">原文</span><span class="mode on">双语</span><span class="mode">中文</span>
+            <span class="mbar">已翻译 128 段 · <b>同步 Obsidian ✓</b></span>
+          </div>
+        </div>
+        <div class="actions">
+          <a class="btn btn-primary" href="README.zh-CN.md">阅读安装步骤 ↗</a>
+          <a class="btn btn-ghost" href="#teach">先看看它能怎么帮你学习</a>
+        </div>
+        <div class="note-cap">自带你自己的 API 密钥 · 数据存在本机 · 不收集任何使用痕迹<br /><b>Google Chrome ≥ 116 · 本地加载（unpacked）</b></div>
+      </div>
+    </section>
+
+    <section id="teach" class="section">
+      <div class="wrap">
+        <div class="kicker">从「看完」到「学会」</div>
+        <h2>同一个视频，换一种读它的方式。</h2>
+        <p class="sub">每一步都发生在同一个侧边栏里：读、查、划重点、沉淀，最后带走。</p>
+        <div class="featurelist">
+          <div class="feat">
+            <div class="k">双语逐字稿</div>
+            <h3>原文与中文逐句对齐</h3>
+            <p>原文、中文、逐句双语任意切换。按语义段合并成完整句子，不打断一句话。</p>
+            <div class="demo">原文 › <b>intermittent reinforcement</b> › 中文「间歇强化」</div>
+          </div>
+          <div class="feat">
+            <div class="k">选中查词</div>
+            <h3>一个词，连带它的用法</h3>
+            <p>Merriam-Webster 释义、发音、例句，加上 AI 对这句话里用法的讲解。合心意就星标收藏。</p>
+            <div class="demo">选中 <b>grit</b> → 释义 + 中文语境 + 收藏</div>
+          </div>
+          <div class="feat">
+            <div class="k">AI 概览</div>
+            <h3>章节与重点引用</h3>
+            <p>一键生成整段视频的章节和要点，点开即跳到对应时间戳。</p>
+            <div class="demo">概览页 = 章节列表 + 重点引用 · 点击直达该句</div>
+          </div>
+          <div class="feat">
+            <div class="k">时间戳笔记</div>
+            <h3>记下那一刻的想法</h3>
+            <p>播放中按 N 记一条当时的想法，落点精确到秒。收藏的生词和笔记，过后随时回来复习。</p>
+            <div class="demo">按 <b>N</b> → 记下这一刻的思路与出处</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="wrap">
+        <div class="kicker">与你的知识库打通</div>
+        <h2>学完能带走，同步进 Obsidian。</h2>
+        <p class="sub">每个视频对应一份 Markdown：生词收藏、时间戳笔记、双语逐字稿，各自独立托管区块，你手写的部分不受影响。</p>
+        <div class="obs">
+          <div class="obstitle">youtube-digest-learn / Videos / How-To-Digest.md</div>
+          <div class="obscode"><span class="cm">&lt;!-- youtube-digest:notes:start --&gt;</span>
+- 〔 1:43 〕 Let's take that power back. The first thing is just-in-time learning.
+<span class="c-hl">〔 5:28 〕 Study, don't read —— 学，而不是读。</span>
+<span class="cm">&lt;!-- youtube-digest:notes:end --&gt;</span>
+<span class="cm">&lt;!-- youtube-digest:transcript:start --&gt;</span>
+Each night, as we learn and do, our brain resets and restructures.
+每天夜里，当我们学习和动手时，大脑会重置和重构。
+<span class="cm">&lt;!-- youtube-digest:transcript:end --&gt;</span></div>
+          <div class="obsp">托管区块之外的文字原样保留，你的个人笔记不会被覆盖。</div>
+        </div>
+      </div>
+    </section>
+
+    <section id="data" class="section">
+      <div class="wrap">
+        <div class="kicker">数据在你手里</div>
+        <h2>自带密钥，本地优先，没有监听。</h2>
+        <p class="sub">这是一个 bring-your-own-key 的开源插件：用自己的 DeepSeek 与 Supadata 账号，数据存在本机 Chrome，无遥测、无分析、无托管服务器。</p>
+        <div class="control">
+          <div class="ctl"><h3>Bring your own key</h3><p>Supadata + DeepSeek 密钥都是你自己的，成本可控。</p></div>
+          <div class="ctl"><h3>本地存储</h3><p>密钥、设置、笔记、缓存都存本地，不落第三方服务器。</p></div>
+          <div class="ctl"><h3>没有遥测</h3><p>不收集使用行为，不运行开发者服务器。</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="install" class="closing">
+      <div class="wrap">
+        <h2>把下一个视频，变成真的学进去一课。</h2>
+        <p class="note">需要 Google Chrome 116 以上版本。这是一个本地加载（unpacked）的插件，不在扩展商店。</p>
+        <div class="actions">
+          <a class="btn btn-primary" href="dist/youtube-digest-learn-v1.2.4.zip" download>下载 youtube-digest-learn v1.2.4</a>
+          <a class="btn btn-ghost" href="README.zh-CN.md">看图文安装步骤 →</a>
+        </div>
+        <div class="note-cap">安装后到 chrome://extensions，用「加载已解压的扩展程序」选中解压文件夹。</div>
+      </div>
+    </section>
+
+    <footer class="footer" style="border-top:1px solid var(--border);padding:26px 0;">
+      <div class="wrap" style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;font-size:13px;color:var(--ash)">
+        <span>youtube-digest-learn · 把 YouTube 变成学习资料</span>
+        <span>MIT License</span>
+      </div>
+    </footer>
+  </body>
+</html>
